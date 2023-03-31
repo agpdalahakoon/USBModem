@@ -6,15 +6,19 @@
 #include <termios.h>
 #include <string>
 #include <unistd.h>
-#include <poll.h>
+#include <sys/ioctl.h>
 
 class Dongle
 {
     private:
         int fd;
     public:
+        ~Dongle()
+        {
+            close(fd);
+        }
         int open_port(std::string tty);
-        int configure_port();
+        void configure_port();
         std::string query_modem(std::string txt);
 };
 
