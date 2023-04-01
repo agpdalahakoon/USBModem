@@ -20,6 +20,7 @@ class Dongle
         int open_port(std::string tty);
         void configure_port();
         std::string query_modem(std::string txt);
+        std::string decode(std::string txt);
 };
 
 #endif

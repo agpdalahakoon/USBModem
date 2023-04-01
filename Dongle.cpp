@@ -38,25 +38,35 @@ std::string Dongle::query_modem(std::string txt)
 	write(fd,txt.c_str() ,txt.size() );  //Send data
 
     
-    int bytes{0};
-    while(bytes==0)
+    bool finished{false};
+    while(!finished)
     {
-        ioctl(fd,FIONREAD,&bytes);
-    }
-    std::cout<<"Ioctl returned "<<bytes<<std::endl;
+        int bytes{0};
+        while(bytes==0)
+        {
+            ioctl(fd,FIONREAD,&bytes);
+        }
+        std::cout<<"Ioctl returned "<<bytes<<std::endl;
 
-    char buf[bytes];
-    
-    int r=read(fd,buf,sizeof(buf));
-    for(int i=0;i<r;i++)
-    {
-        std::cout<<(int)buf[i]<<" ";
+        char buf[bytes];
+        
+        int r=read(fd,buf,sizeof(buf));
+        std::cout<<"Readed "<<r<<std::endl;
+        str+=buf;
+        auto ret=str.find("OK");
+        if(ret!=std::string::npos)
+        {
+            finished=true;
+        }
     }
-    std::cout<<std::endl;
-    std::cout<<"Readed "<<r<<" size of char:"<<sizeof(char)<<std::endl;
-    str+=buf;
 
     return str;
+}
+
+std::string Dongle::decode(std::string txt)
+{
+    std::string message;
+    return message;
 }
 
 int main()
@@ -65,8 +75,15 @@ int main()
     Dongle d;
     int r=d.open_port("/dev/ttyUSB0");
     std::cout<<"Port open :"<<r<<std::endl;
-    std::cout<<""<<d.query_modem("AT+CMGF=1\r\n")<<std::endl;
     std::cout<<""<<d.query_modem("AT+CPMS=\"ME\"\r\n")<<std::endl;
-    std::cout<<""<<d.query_modem("AT+CMGR=1\r\n")<<std::endl;
+    std::cout<<""<<d.query_modem("AT+CMGF=1\r\n")<<std::endl;
+    std::cout<<""<<d.query_modem("AT+CMGR=3\r\n")<<std::endl;
+    std::string inp;
+    while(1)
+    {
+        std::cout<<"Please input command"<<std::endl;
+        std::cin >> inp;
+        std::cout<<d.query_modem(inp+"\r\n")<<std::endl;
+    }
 
 }
